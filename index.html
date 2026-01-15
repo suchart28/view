@@ -3,90 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR 3D Viewer</title>
+    <title>AR ประตูเมืองขอนแก่น</title>
     
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: 'Sarabun', sans-serif;
             background-color: #f0f2f5;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             overflow: hidden;
         }
 
-        /* ส่วนแสดงผลโมเดล 3D */
         model-viewer {
             width: 100%;
-            height: 80vh; /* ให้พื้นที่ส่วนใหญ่กับโมเดล */
+            height: 100vh; /* เต็มหน้าจอไปเลย */
             background-color: #ffffff;
             --poster-color: #ffffff;
         }
 
-        /* ส่วนควบคุมการ Upload */
-        .controls {
-            height: 20vh;
-            width: 100%;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 10;
-        }
-
-        .custom-file-upload {
-            border: 1px solid #ccc;
-            display: inline-block;
-            padding: 12px 24px;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border-radius: 50px;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-
-        .custom-file-upload:hover {
-            background-color: #0056b3;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .instruction {
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        /* ปรับแต่งปุ่ม AR ของ model-viewer ให้เด่นขึ้น */
+        /* ปุ่ม AR ปรับให้เด่น */
         #ar-button {
-            background-image: url(https://modelviewer.dev/shared-assets/icons/ic_view_in_ar_new_googblue_48dp.png);
-            background-repeat: no-repeat;
-            background-size: 20px 20px;
-            background-position: 12px 50%;
-            background-color: #fff;
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 30px;
+            border: none;
             position: absolute;
+            bottom: 50px;
             left: 50%;
             transform: translateX(-50%);
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
             white-space: nowrap;
-            bottom: 132px;
-            padding: 0px 16px 0px 40px;
-            font-family: Roboto, Regular, Helvetica, Neue, sans-serif;
+            z-index: 100;
+        }
+
+        #ar-prompt {
+            position: absolute;
+            left: 50%;
+            bottom: 120px;
+            transform: translateX(-50%);
+            display: none;
+            color: #333;
+            background: rgba(255,255,255,0.8);
+            padding: 5px 10px;
+            border-radius: 10px;
             font-size: 14px;
-            color:#4285f4;
-            height: 36px;
-            line-height: 36px;
-            border-radius: 18px;
-            border: 1px solid #DADCE0;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -94,48 +64,26 @@
 
     <model-viewer 
         id="viewer"
-        src="" 
+        src="ประตูเมือง.glb" 
         ar 
-        ar-modes="scene-viewer webxr quick-look" 
+        ar-modes="webxr scene-viewer quick-look" 
+        ar-scale="auto"
+        ar-placement="floor"
         camera-controls 
-        tone-mapping="neutral" 
-        poster="https://modelviewer.dev/assets/poster-astronaut.png" 
-        shadow-intensity="1"
-        auto-rotate>
-        
+        touch-action="pan-y"
+        shadow-intensity="1" 
+        auto-rotate
+        alt="โมเดล 3D ประตูเมือง">
+
         <button slot="ar-button" id="ar-button">
-            ดูในพื้นที่จริง (AR)
+            📷 ถ่ายรูปกับประตูเมือง (AR)
         </button>
 
-        <div id="error" class="hide"></div>
+        <div id="ar-prompt" slot="ar-prompt">
+            👋 ขยับมือถือเพื่อหาพื้นที่วาง
+        </div>
+
     </model-viewer>
-
-    <div class="controls">
-        <label for="file-upload" class="custom-file-upload">
-            📂 เลือกไฟล์ .glb
-        </label>
-        <input id="file-upload" type="file" accept=".glb"/>
-        <div class="instruction">รองรับไฟล์ .glb เท่านั้น</div>
-    </div>
-
-    <script>
-        const modelViewer = document.querySelector("#viewer");
-        const fileInput = document.querySelector("#file-upload");
-
-        fileInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                // สร้าง URL ชั่วคราวจากไฟล์ที่เลือก (Blob URL)
-                const url = URL.createObjectURL(file);
-                
-                // สั่งให้ model-viewer แสดงผลไฟล์นั้น
-                modelViewer.src = url;
-                
-                // แจ้งเตือนคอนโซล
-                console.log("Loaded file: " + file.name);
-            }
-        });
-    </script>
 
 </body>
 </html>
