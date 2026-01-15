@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR 3D Viewer</title>
+    
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f0f2f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* ส่วนแสดงผลโมเดล 3D */
+        model-viewer {
+            width: 100%;
+            height: 80vh; /* ให้พื้นที่ส่วนใหญ่กับโมเดล */
+            background-color: #ffffff;
+            --poster-color: #ffffff;
+        }
+
+        /* ส่วนควบคุมการ Upload */
+        .controls {
+            height: 20vh;
+            width: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .custom-file-upload {
+            border: 1px solid #ccc;
+            display: inline-block;
+            padding: 12px 24px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #0056b3;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .instruction {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* ปรับแต่งปุ่ม AR ของ model-viewer ให้เด่นขึ้น */
+        #ar-button {
+            background-image: url(https://modelviewer.dev/shared-assets/icons/ic_view_in_ar_new_googblue_48dp.png);
+            background-repeat: no-repeat;
+            background-size: 20px 20px;
+            background-position: 12px 50%;
+            background-color: #fff;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            bottom: 132px;
+            padding: 0px 16px 0px 40px;
+            font-family: Roboto, Regular, Helvetica, Neue, sans-serif;
+            font-size: 14px;
+            color:#4285f4;
+            height: 36px;
+            line-height: 36px;
+            border-radius: 18px;
+            border: 1px solid #DADCE0;
+        }
+    </style>
+</head>
+<body>
+
+    <model-viewer 
+        id="viewer"
+        src="" 
+        ar 
+        ar-modes="scene-viewer webxr quick-look" 
+        camera-controls 
+        tone-mapping="neutral" 
+        poster="https://modelviewer.dev/assets/poster-astronaut.png" 
+        shadow-intensity="1"
+        auto-rotate>
+        
+        <button slot="ar-button" id="ar-button">
+            ดูในพื้นที่จริง (AR)
+        </button>
+
+        <div id="error" class="hide"></div>
+    </model-viewer>
+
+    <div class="controls">
+        <label for="file-upload" class="custom-file-upload">
+            📂 เลือกไฟล์ .glb
+        </label>
+        <input id="file-upload" type="file" accept=".glb"/>
+        <div class="instruction">รองรับไฟล์ .glb เท่านั้น</div>
+    </div>
+
+    <script>
+        const modelViewer = document.querySelector("#viewer");
+        const fileInput = document.querySelector("#file-upload");
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                // สร้าง URL ชั่วคราวจากไฟล์ที่เลือก (Blob URL)
+                const url = URL.createObjectURL(file);
+                
+                // สั่งให้ model-viewer แสดงผลไฟล์นั้น
+                modelViewer.src = url;
+                
+                // แจ้งเตือนคอนโซล
+                console.log("Loaded file: " + file.name);
+            }
+        });
+    </script>
+
+</body>
+</html>
